@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <springProperty scope="context" name="springAppName" source="spring.application.name"/>
+    <springProperty scope="context" name="springAppIndex" source="spring.application.index"/>
+    <!-- Example for logging into the build folder of your project -->
+    <!-- <property name="LOG_FILE" value="${SERVICE_LOG_FOLDER:-logs}/${springAppName}/server0"/>-->
+    <!-- <property name="SQL_LOG_FILE" value="${SERVICE_LOG_FOLDER:-logs}/${springAppName}/sql"/>-->
+
+   <property name="LOG_FILE" value="${SERVICE_LOG_FOLDER:-logs}/${springAppName}/server0"/>
+   <property name="CG_LOG_FILE" value="${SERVICE_LOG_FOLDER:-logs}/${springAppName}"/>
+   <property name="SYSTEM_LOG_PATTERN" value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %msg%n"/>
+
+   <property name="CONSOLE_LOG_PATTERN" value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+
+   <!-- monitor log config -->
+    <property name="MONITOR_LOG_FILE" value="${SERVICE_LOG_FOLDER:-logs}/${springAppName}/monitor"/>
+    <appender name="monitorAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${MONITOR_LOG_FILE}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${MONITOR_LOG_FILE}.%d{yyyy-MM-dd}.gz</fileNamePattern>
+            <maxHistory>15</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <!-- Appender to log to console -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <!-- Minimum logging level to be presented in the console logs-->
+            <level>DEBUG</level>
+        </filter>
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <!-- Appender to log to file -->
+    <appender name="flatfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <file>${LOG_FILE}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}.gz</fileNamePattern>
+            <maxHistory>15</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <!--<appender name="sqlfile" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+        <!--<file>${SQL_LOG_FILE}.log</file>-->
+        <!--<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+            <!--<fileNamePattern>${SQL_LOG_FILE}.%d{yyyy-MM-dd}.gz</fileNamePattern>-->
+            <!--<maxHistory>15</maxHistory>-->
+        <!--</rollingPolicy>-->
+        <!--<encoder>-->
+            <!--<pattern>${CONSOLE_LOG_PATTERN}</pattern>-->
+            <!--<charset>utf8</charset>-->
+        <!--</encoder>-->
+    <!--</appender>-->
+
+
+    <logger name="com.example.demo" level="DEBUG" />
+
+    <!--<logger name="com.tuandai.ms.common.mybatis" level="INFO"  additivity="false">-->
+        <!--<appender-ref ref="sqlfile"/>-->
+    <!--</logger>-->
+
+    <logger name="monitor" level="INFO" additivity="false">
+        <appender-ref ref="monitorAppender"/>
+        <appender-ref ref="console"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="console"/>
+        <appender-ref ref="flatfile"/>
+        <!--<appender-ref ref="sqlfile"/>-->
+    </root>
+
+    <appender name="cgt_logger_appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${CG_LOG_FILE}/cg-logs/server${springAppIndex}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${CG_LOG_FILE}/cg-logs/server${springAppIndex}.%d{yyyy-MM-dd}.gz</fileNamePattern>
+            <maxHistory>15</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${SYSTEM_LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <logger name="cgt_logger" level="INFO" additivity="false">
+        <appender-ref ref="cgt_logger_appender"/>
+    </logger>
+
+
+</configuration>

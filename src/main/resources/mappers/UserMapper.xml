@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.UserMapper">
+
+    <resultMap id="UserBaseResultMap" type="com.example.demo.model.User" >
+        <id column="id" property="id" jdbcType="VARCHAR" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="password" property="password" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <sql id="UserBase_Column_List" >
+        id, name, password, create_time
+    </sql>
+
+    <sql id="where">
+        <if test="id != null and id != ''">
+            and id = #{id,jdbcType=VARCHAR}
+        </if>
+        <if test="name != null and name != ''">
+            and `name` like CONCAT('%','${name}','%')
+        </if>
+        <if test="password != null and password != ''">
+            and password = #{password,jdbcType=VARCHAR}
+        </if>
+        <if test="createTime != null">
+            and create_time = #{createTime,jdbcType=TIMESTAMP}
+        </if>
+    </sql>
+
+    <select id="countUserByName" resultType="java.lang.Integer" parameterType="java.lang.String">
+        select COUNT(1) from t_user WHERE name = #{_parameter}
+    </select>
+
+    <select id="findUser" resultMap="UserBaseResultMap" parameterType="com.example.demo.model.User">
+        select
+          <include refid="UserBase_Column_List" />
+        from t_user
+        WHERE 1=1 <include refid="where" /> limit 1
+    </select>
+
+    <select id="findUserList" resultMap="UserBaseResultMap" parameterType="com.example.demo.model.User" >
+        select
+          <include refid="UserBase_Column_List" />
+        from t_user
+        WHERE 1=1 <include refid="where" />
+    </select>
+
+    <insert id="insertUser" parameterType="com.example.demo.model.User">
+        INSERT INTO t_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            create_time,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="password != null">
+                #{password},
+            </if>
+            now(),
+        </trim>
+    </insert>
+
+    <update id="updateUser" parameterType="com.example.demo.model.User">
+        update t_user
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="password != null">
+                password = #{password},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteUserById" parameterType="java.lang.String" >
+        DELETE FROM t_user WHERE id = #{_parameter}
+    </delete>
+
+    <select id="procUserLoginLog" parameterType="java.util.Map" resultType="java.lang.String" statementType="CALLABLE">
+        <![CDATA[
+      call ProcUserLoginLog(#{userId,mode=IN,jdbcType=INTEGER},#{outStatus,mode=IN,jdbcType=INTEGER})
+    ]]>
+    </select>
+
+    <select id="procUpdateUserErrorCount" parameterType="java.util.Map" resultType="java.lang.Integer" statementType="CALLABLE">
+        <![CDATA[
+      call ProcUpdateUserErrorCount(#{userName,mode=IN,jdbcType=VARCHAR}, #{count,mode=IN,jdbcType=VARCHAR})
+    ]]>
+    </select>
+
+</mapper>
